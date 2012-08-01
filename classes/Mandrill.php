@@ -11,7 +11,7 @@ require_once 'Mandrill/Senders.php';
 require_once 'Mandrill/Exceptions.php';
 
 class Mandrill {
-    
+
     public $apikey;
     public $ch;
     public $root = 'https://mandrillapp.com/api/1.0';
@@ -30,7 +30,8 @@ class Mandrill {
     );
 
     public function __construct($apikey=null) {
-        if(!$apikey) $apikey = getenv('MANDRILL_APIKEY');
+        $config = \Config::load('Mandrill');
+        if(!$apikey) $apikey = $config['api_key'];
         if(!$apikey) $apikey = $this->readConfigs();
         if(!$apikey) throw new Mandrill_Error('You must provide a Mandrill API key');
         $this->apikey = $apikey;
@@ -54,6 +55,10 @@ class Mandrill {
         $this->urls = new Mandrill_Urls($this);
         $this->webhooks = new Mandrill_Webhooks($this);
         $this->senders = new Mandrill_Senders($this);
+    }
+
+    public function forge() {
+        return new static;
     }
 
     public function __destruct() {
@@ -93,7 +98,7 @@ class Mandrill {
         }
         $result = json_decode($response_body, true);
         if($result === null) throw new Mandrill_Error('We were unable to decode the JSON response from the Mandrill API: ' . $response_body);
-        
+
         if(floor($info['http_code'] / 100) >= 4) {
             throw $this->castError($result);
         }
