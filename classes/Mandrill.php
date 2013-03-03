@@ -1,15 +1,5 @@
 <?php
 
-require_once 'Mandrill/Templates.php';
-require_once 'Mandrill/Users.php';
-require_once 'Mandrill/Rejects.php';
-require_once 'Mandrill/Tags.php';
-require_once 'Mandrill/Messages.php';
-require_once 'Mandrill/Urls.php';
-require_once 'Mandrill/Webhooks.php';
-require_once 'Mandrill/Senders.php';
-require_once 'Mandrill/Exceptions.php';
-
 class Mandrill {
 
     public $apikey;
@@ -30,9 +20,8 @@ class Mandrill {
     );
 
     public function __construct($apikey=null) {
-        $config = \Config::load('Mandrill');
+        $config = \Config::load('mandrill', true);
         if(!$apikey) $apikey = $config['api_key'];
-        if(!$apikey) $apikey = $this->readConfigs();
         if(!$apikey) throw new Mandrill_Error('You must provide a Mandrill API key');
         $this->apikey = $apikey;
 
@@ -104,17 +93,6 @@ class Mandrill {
         }
 
         return $result;
-    }
-
-    public function readConfigs() {
-        $paths = array('~/.mandrill.key', '/etc/mandrill.key');
-        foreach($paths as $path) {
-            if(file_exists($path)) {
-                $apikey = trim(file_get_contents($path));
-                if($apikey) return $apikey;
-            }
-        }
-        return false;
     }
 
     public function castError($result) {
